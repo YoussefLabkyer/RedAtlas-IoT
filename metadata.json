@@ -1,0 +1,6 @@
+{
+  "name": "RedAtlas IoT",
+  "description": "Application web en français de supervision et d'analyse de capteurs IoT (température, pression, vibration) avec visualisation en temps réel et détection d'anomalies.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
