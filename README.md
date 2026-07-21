@@ -4,6 +4,27 @@ Ce guide explique étape par étape comment installer et démarrer l'application
 
 ---
 
+## 🛠️ Technologies Utilisées
+
+### 🎨 Frontend (Interface Utilisateur)
+- **React 19** (TypeScript) - Bibliothèque pour la construction de l'interface utilisateur.
+- **Vite** - Outil de build et serveur de développement ultra-rapide.
+- **Tailwind CSS v4** - Framework CSS utilitaire pour le design réactif et moderne.
+- **Recharts** - Bibliothèque de graphiques interactifs pour la visualisation des données des capteurs IoT.
+- **Lucide React** - Collection d'icônes vectorielles.
+- **Motion (Framer Motion)** - Gestion des animations et transitions fluides.
+
+### ⚙️ Backend (Serveur & API)
+- **Node.js** & **Express** - Serveur d'application et API RESTful pour la gestion des machines, techniciens et télémétrie.
+- **TypeScript** - Typage statique pour une robustesse accrue du code serveur et client.
+- **Google GenAI SDK (`@google/genai`)** - Intégration de l'intelligence artificielle Gemini pour l'analyse prédictive et la détection d'anomalies.
+
+### 🐍 IoT & Simulation (Python)
+- **Python 3** - Scripts de génération de données de capteurs IoT (`generator.py`) et détection d'anomalies par machine learning (`anomaly_detector.py`).
+- **Moteur de simulation Node.js (Fallback)** - Système autonome de génération de télémétrie en secours si Python n'est pas disponible.
+
+---
+
 ## 📋 Prérequis
 
 Avant de commencer, assurez-vous de disposer des éléments suivants sur votre PC Windows :

@@ -145,25 +145,52 @@ export function startPythonService(): { success: boolean; message: string; pid?:
     return { success: false, message: 'Le script Python/Générateur est déjà en cours d\'exécution.' };
   }
 
-  // Attempt spawning Python process or initiate Node simulation engine
-  const scriptPath = path.join(process.cwd(), 'server', 'python', 'generator.py');
-  
-  try {
-    pythonProcess = spawn('python3', [scriptPath], {
-      detached: false,
-      stdio: 'ignore',
-    });
+  // Detect operating system candidates
+  const candidates =
+    process.platform === 'win32'
+      ? ['python', 'py']
+      : ['python3', 'python'];
 
-    if (pythonProcess && pythonProcess.pid) {
-      isScriptRunning = true;
-      startedTime = new Date().toISOString();
-      console.log(`Script Python IoT démarré avec PID ${pythonProcess.pid}`);
+  const scriptPath = path.join(process.cwd(), 'server', 'python', 'generator.py');
+  let spawnedSuccess = false;
+
+  for (const cmd of candidates) {
+    try {
+      const proc = spawn(cmd, [scriptPath], {
+        detached: false,
+        stdio: 'ignore',
+      });
+
+      // Attach error listener immediately to prevent unhandled 'error' events crashing the server
+      proc.on('error', (err) => {
+        console.warn(`L'exécution de la commande Python '${cmd}' a échoué: ${err.message}. Basculement automatique sur le moteur de simulation TypeScript.`);
+        if (pythonProcess === proc) {
+          pythonProcess = null;
+        }
+      });
+
+      proc.on('exit', () => {
+        if (pythonProcess === proc) {
+          pythonProcess = null;
+        }
+      });
+
+      if (proc.pid) {
+        pythonProcess = proc;
+        spawnedSuccess = true;
+        console.log(`Script Python IoT démarré via '${cmd}' (OS: ${process.platform}) avec PID ${proc.pid}`);
+        break;
+      }
+    } catch (err: any) {
+      console.warn(`Impossible de lancer la commande Python '${cmd}':`, err?.message || err);
     }
-  } catch (err) {
-    console.warn('Python3 non disponible sur l\'hôte, basculement vers le moteur d\'exécution intégré:', err);
   }
 
-  // Always back up with internal high-performance simulation loop
+  if (!spawnedSuccess) {
+    console.warn('Aucune commande Python n\'a pu être lancée. Le serveur utilise le moteur de détection d\'anomalies et de simulation natif TypeScript.');
+  }
+
+  // Always enable high-performance simulation loop as fallback/engine
   isScriptRunning = true;
   startedTime = new Date().toISOString();
 
@@ -179,8 +206,10 @@ export function startPythonService(): { success: boolean; message: string; pid?:
 
   return {
     success: true,
-    message: 'Script Python de génération IoT et détection d\'anomalies démarré avec succès.',
-    pid: pythonProcess?.pid || 4821,
+    message: spawnedSuccess
+      ? 'Script Python de génération IoT et détection d\'anomalies démarré avec succès.'
+      : 'Moteur de simulation IoT démarré avec succès (mode simulation TypeScript natif).',
+    pid: pythonProcess?.pid || process.pid,
   };
 }
 
